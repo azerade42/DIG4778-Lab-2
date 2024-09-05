@@ -71,7 +71,7 @@ public class ShapeEditor : Editor
             {
                 foreach (GameObject selectedObj in Selection.objects)
                 {
-                    ResizeAllShapes<Sphere>(radiusProperty.floatValue * 0.5f);
+                    ResizeAllShapes<Sphere>(radiusProperty.floatValue * 2f);
                 }
             }
             radiusProperty.serializedObject.ApplyModifiedProperties();
