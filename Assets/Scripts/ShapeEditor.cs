@@ -2,9 +2,15 @@ using UnityEngine;
 using UnityEditor;
 using System.Linq;
 
+
 [CustomEditor(typeof(Shape)), CanEditMultipleObjects]
 public class ShapeEditor : Editor
 {
+    private Color cachedCubeColor;
+    private Color cachedSphereColor;
+    bool cubesActive = true;
+    bool spheresActive = true;
+    
     public override void OnInspectorGUI()
     {
         base.OnInspectorGUI();
@@ -29,15 +35,21 @@ public class ShapeEditor : Editor
 
         using (new EditorGUILayout.HorizontalScope())
         {
+            GUI.backgroundColor = cubesActive ? Color.green : Color.red;
             if (GUILayout.Button("Enable/Disable all cubes"))
             {
+                cubesActive = !cubesActive;
                 ToggleAllShapes<Cube>();
             }
 
+            GUI.backgroundColor = spheresActive ? Color.green : Color.red;
             if (GUILayout.Button("Enable/Disable all spheres"))
             {
+                spheresActive = !spheresActive;
                 ToggleAllShapes<Sphere>();
             }
+
+            GUI.backgroundColor = Color.white;
         }
 
         SerializedProperty sizeProperty = serializedObject.FindProperty("cubeSize");
