@@ -6,8 +6,6 @@ using System.Linq;
 [CustomEditor(typeof(Shape)), CanEditMultipleObjects]
 public class ShapeEditor : Editor
 {
-    private Color cachedCubeColor;
-    private Color cachedSphereColor;
     bool cubesActive = true;
     bool spheresActive = true;
     
@@ -15,6 +13,7 @@ public class ShapeEditor : Editor
     {
         base.OnInspectorGUI();
         
+        // Draw selection GUI in horizontal pattern
         using (new EditorGUILayout.HorizontalScope())
         {
             if (GUILayout.Button("Select all cubes"))
@@ -32,7 +31,8 @@ public class ShapeEditor : Editor
                 Selection.objects = null;
             }
         }
-
+        
+        // Draw toggle GUI in horizontal pattern underneath the selection GUI
         using (new EditorGUILayout.HorizontalScope())
         {
             GUI.backgroundColor = cubesActive ? Color.green : Color.red;
@@ -52,44 +52,27 @@ public class ShapeEditor : Editor
             GUI.backgroundColor = Color.white;
         }
 
+        // Search for the size properties of the shapes
         SerializedProperty sizeProperty = serializedObject.FindProperty("cubeSize");
         SerializedProperty radiusProperty = serializedObject.FindProperty("sphereRadius");
 
+        // Resize the shapes based on the property values
         if (sizeProperty != null)
         {
             EditorGUILayout.PropertyField(sizeProperty);
-            if (sizeProperty?.floatValue < 0)
-            {
-                EditorGUILayout.HelpBox($"The size of the cubes cannot be less than 0!", MessageType.Warning);
-            }
-            else
-            {
-                foreach (GameObject selectedObj in Selection.objects)
-                {
-                    ResizeAllShapes<Cube>(sizeProperty.floatValue);
-                }
-            }
+            ResizeAllShapes<Cube>(sizeProperty.floatValue);
             sizeProperty.serializedObject.ApplyModifiedProperties();
         }
 
         if (radiusProperty != null)
         {
             EditorGUILayout.PropertyField(radiusProperty);
-            if (radiusProperty?.floatValue < 0)
-            {
-                EditorGUILayout.HelpBox($"The radius of the spheres cannot be less than 0!", MessageType.Warning);
-            }
-            else
-            {
-                foreach (GameObject selectedObj in Selection.objects)
-                {
-                    ResizeAllShapes<Sphere>(radiusProperty.floatValue * 2f);
-                }
-            }
+            ResizeAllShapes<Sphere>(radiusProperty.floatValue * 2f);
             radiusProperty.serializedObject.ApplyModifiedProperties();
         }
     }
 
+    // Finds all objects of type T and selects them
     private void SelectAllShapes<T>() where T : Shape
     {
         T [] allShapes = FindObjectsOfType<T>();
@@ -99,6 +82,7 @@ public class ShapeEditor : Editor
         Selection.objects = allShapeObjects;
     }
 
+    // Finds all objects of type T and toggles them on/off
     private void ToggleAllShapes<T>() where T : Shape
     {
         foreach (T shape in FindObjectsOfType<T>(true))
@@ -107,11 +91,20 @@ public class ShapeEditor : Editor
         }
     }
 
-    private void ResizeAllShapes<T>(float size) where T : Shape
+    // Resizes all objects of type T given a size value
+    private void ResizeAllShapes<T>(float sizeValue) where T : Shape
     {
-        foreach (T shape in FindObjectsOfType<T>(true))
+        // Specifies a rule that the size cannot be less than 0 and displays a warning if so
+        if (sizeValue < 0)
         {
-            shape.transform.localScale = Vector3.one * size;
+            EditorGUILayout.HelpBox($"The size of the cubes cannot be less than 0!", MessageType.Warning);
+        }
+        else
+        {
+            foreach (T shape in FindObjectsOfType<T>(true))
+            {
+                shape.transform.localScale = Vector3.one * sizeValue;
+            }
         }
     }
 
